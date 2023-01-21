@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from unlimited_parts.models import Part
+from unlimited_parts.models import DescriptionWordCount
 
 # region Models tests
 
@@ -35,6 +36,55 @@ class PartTestCase(TestCase):
         Part.objects.get(pk=1).delete()
 
         self.assertEqual(Part.objects.count(), 0)
+
+    # region DescriptionWord updates tests
+
+    def test_creates_description_word_count_records(self):
+        """Creating a part updates desciption word count recods"""
+        Part.objects.create(
+            name="Alloy Steel Bar",
+            sku="SFSDF8SDGF",
+            description="Tight-tolerance hardened multipurpose alloy steel bar",
+            weight_ounces=22,
+            is_active=1,
+        )
+
+        self.assertEqual(DescriptionWordCount.objects.get(pk="tight").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="tolerance").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="hardened").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="multipurpose").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="alloy").count, 2)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="steel").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="bar").count, 1)
+
+    def test_substract_description_word_count(self):
+        """Parts can be successfully deleted"""
+        Part.objects.get(pk=1).delete()
+
+        self.assertEqual(Part.objects.count(), 0)
+
+        self.assertEqual(DescriptionWordCount.objects.get(pk="tightly").count, 0)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="wound").count, 0)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="nickel").count, 0)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="gravy").count, 0)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="alloy").count, 0)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="spring").count, 0)
+
+    def test_updates_description_word_count_records(self):
+        """Updating a part updates desciption word count recods"""
+        heavy_coil_part = Part.objects.get(pk=1)
+        heavy_coil_part.description = "Super tightly wound spring"
+        heavy_coil_part.save()
+
+        self.assertEqual(DescriptionWordCount.objects.get(pk="super").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="tightly").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="wound").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="spring").count, 1)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="nickel").count, 0)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="gravy").count, 0)
+        self.assertEqual(DescriptionWordCount.objects.get(pk="alloy").count, 0)
+
+    # endregion
 
 
 # endregion
