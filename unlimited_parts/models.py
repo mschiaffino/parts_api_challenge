@@ -10,3 +10,11 @@ class Part(models.Model):
 
     def __repr__(self) -> str:
         return f"<Part: {self.name} ({self.id})>"
+
+
+class DescriptionWordCount(models.Model):
+    word = models.CharField(primary_key=True, max_length=50)
+    count = models.IntegerField(default=0)
+
+    def __repr__(self) -> str:
+        return f"<DescriptionWordCount: {self.word} [{self.count}]>"
