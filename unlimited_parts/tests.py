@@ -152,4 +152,37 @@ class PartViewsetTest(APITestCase):
         self.assertEqual(Part.objects.count(), 0)
 
 
+class DescriptionWordCountTest(APITestCase):
+    def setUp(self):
+        Part.objects.create(
+            name="Heavy Coil",
+            sku="SDJDDH8223DHJ",
+            description="Tightly wound nickel-gravy alloy spring",
+            weight_ounces=22,
+            is_active=1,
+        )
+
+        Part.objects.create(
+            name="Ultra Heavy Coil",
+            sku="DCMM39823DSJD",
+            description="Super tightly wound steel alloy spring",
+            weight_ounces=9,
+            is_active=0,
+        )
+
+    def test_returns_top_five_words(self):
+        response = self.client.get("/top_part_description_words/")
+
+        self.assertEqual(
+            response.json(),
+            [
+                {"word": "alloy", "count": 2},
+                {"word": "spring", "count": 2},
+                {"word": "tightly", "count": 2},
+                {"word": "wound", "count": 2},
+                {"word": "gravy", "count": 1},
+            ],
+        )
+
+
 # endregion
