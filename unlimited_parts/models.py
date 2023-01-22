@@ -39,10 +39,25 @@ class DescriptionWordCount(models.Model):
 
     def update_word_counts(old_description: str, new_description: str) -> None:
         """Given an old and new description, updates word count records appropriately"""
+        word_count_delta = DescriptionWordCount._calculate_word_count_delta(
+            old_description, new_description
+        )
+        word_count_batch: list[DescriptionWordCount] = []
+
+        # Update or create DescriptionWordCount records
+        for word in word_count_delta.keys():
+            word_count, _ = DescriptionWordCount.objects.get_or_create(pk=word)
+            word_count.count += word_count_delta[word]
+            word_count_batch.append(word_count)
+
+        DescriptionWordCount.objects.bulk_update(word_count_batch, ["count"])
+
+    def _calculate_word_count_delta(
+        old_description: str, new_description: str
+    ) -> dict[str, int]:
         old_description_words = DescriptionWordCount._split_description(old_description)
         new_description_words = DescriptionWordCount._split_description(new_description)
         word_count_delta = {}
-        word_count_batch = []
 
         # Subtract count for words present in old description
         for word in old_description_words:
@@ -56,13 +71,7 @@ class DescriptionWordCount(models.Model):
                 word_count_delta[word] = 0
             word_count_delta[word] += 1
 
-        # Update or create DescriptionWordCount records
-        for word in word_count_delta.keys():
-            word_count, _ = DescriptionWordCount.objects.get_or_create(pk=word)
-            word_count.count += word_count_delta[word]
-            word_count_batch.append(word_count)
-
-        DescriptionWordCount.objects.bulk_update(word_count_batch, ["count"])
+        return word_count_delta
 
     def _split_description(description: str) -> list[str]:
         return re.split(SPACE_HYPHEN_REGEX, description.lower())
