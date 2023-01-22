@@ -111,7 +111,7 @@ class PartViewsetTest(APITestCase):
         response = self.client.get("/parts/")
 
         self.assertEqual(
-            response.json(),
+            response.json().get("results"),
             [
                 {
                     "id": 1,

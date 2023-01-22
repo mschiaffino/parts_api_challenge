@@ -11,6 +11,9 @@ class Part(models.Model):
     weight_ounces = models.PositiveIntegerField()
     is_active = models.SmallIntegerField()
 
+    class Meta:
+        ordering = ["id"]
+
     def __repr__(self) -> str:
         return f"<Part: {self.name} ({self.id})>"
 
