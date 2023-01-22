@@ -74,4 +74,8 @@ class DescriptionWordCount(models.Model):
         return word_count_delta
 
     def _split_description(description: str) -> list[str]:
-        return re.split(SPACE_HYPHEN_REGEX, description.lower())
+        return (
+            re.split(SPACE_HYPHEN_REGEX, description.lower())
+            if description is not ""
+            else []
+        )

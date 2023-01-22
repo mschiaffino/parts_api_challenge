@@ -84,6 +84,11 @@ class PartTestCase(TestCase):
         self.assertEqual(DescriptionWordCount.objects.get(pk="gravy").count, 0)
         self.assertEqual(DescriptionWordCount.objects.get(pk="alloy").count, 0)
 
+    def test_does_not_save_empty_word(self):
+        """Make sure that we do not save empty strings"""
+        empty_word_query = DescriptionWordCount.objects.filter(pk="")
+        self.assertFalse(empty_word_query.exists())
+
     # endregion
 
 
